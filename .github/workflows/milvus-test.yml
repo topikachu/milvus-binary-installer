@@ -45,3 +45,21 @@ jobs:
         docker cp milvus-standalone:/milvus ${{ github.workspace }}/milvus/
         ls ${{ github.workspace }}/milvus/
         # You can repeat this command for multiple files or directories
+
+    - name: Package Milvus application
+      run: |
+        cd ${{ github.workspace }}
+        tar -czvf milvus-package.tgz milvus/
+        ls -lh milvus-package.tgz
+
+    - name: Upload Milvus package
+      uses: actions/upload-artifact@v2
+      with:
+        name: milvus-package
+        path: ${{ github.workspace }}/milvus-package.tgz
+
+      # Optional: Clean up
+    - name: Clean up
+      run: |
+        docker stop milvus-standalone
+        docker rm milvus-standalone
