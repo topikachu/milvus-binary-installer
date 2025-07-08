@@ -1,0 +1,46 @@
+name: Milvus Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Start Milvus container
+      run: |
+        docker run -d \
+          --name milvus-standalone \
+          --security-opt seccomp:unconfined \
+          -e ETCD_USE_EMBED=true \
+          -e ETCD_DATA_DIR=/var/lib/milvus/etcd \
+          -e ETCD_CONFIG_PATH=/milvus/configs/embedEtcd.yaml \
+          -e COMMON_STORAGETYPE=local \
+          -v ${{ github.workspace }}/volumes/milvus:/var/lib/milvus \
+          -v ${{ github.workspace }}/embedEtcd.yaml:/milvus/configs/embedEtcd.yaml \
+          -v ${{ github.workspace }}/user.yaml:/milvus/configs/user.yaml \
+          -p 19530:19530 \
+          -p 9091:9091 \
+          -p 2379:2379 \
+          --health-cmd="curl -f http://localhost:9091/healthz" \
+          --health-interval=30s \
+          --health-start-period=90s \
+          --health-timeout=20s \
+          --health-retries=3 \
+          milvusdb/milvus:v2.5.14 \
+          milvus run standalone
+
+    - name: Wait for Milvus to be ready
+      run: |
+        timeout 300s bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:9091/healthz)" != "200" ]]; do sleep 5; done' || false
+
+    # Add your test steps here
+    - name: Run tests
+      run: |
+        # Add your test commands here
