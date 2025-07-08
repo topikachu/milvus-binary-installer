@@ -1,4 +1,4 @@
-name: Milvus Test
+name: Milvus Test and Package
 
 on:
   push:
@@ -7,8 +7,8 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-22.04
     
     steps:
     - uses: actions/checkout@v2
@@ -22,9 +22,6 @@ jobs:
           -e ETCD_DATA_DIR=/var/lib/milvus/etcd \
           -e ETCD_CONFIG_PATH=/milvus/configs/embedEtcd.yaml \
           -e COMMON_STORAGETYPE=local \
-          -v ${{ github.workspace }}/volumes/milvus:/var/lib/milvus \
-          -v ${{ github.workspace }}/embedEtcd.yaml:/milvus/configs/embedEtcd.yaml \
-          -v ${{ github.workspace }}/user.yaml:/milvus/configs/user.yaml \
           -p 19530:19530 \
           -p 9091:9091 \
           -p 2379:2379 \
@@ -43,8 +40,7 @@ jobs:
     - name: Copy milvus application from container to workspace
       run: |
         docker cp milvus-standalone:/milvus ${{ github.workspace }}/milvus/
-        ls ${{ github.workspace }}/milvus/
-        # You can repeat this command for multiple files or directories
+        ls -R ${{ github.workspace }}/milvus/
 
     - name: Package Milvus application
       run: |
@@ -55,10 +51,9 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: milvus-package-${{ matrix.runs-on }}
-        path: file-${{ matrix.runs-on }}.txt
+        name: milvus-package-ubuntu-22.04
+        path: ${{ github.workspace }}/milvus-package.tgz
 
-      # Optional: Clean up
     - name: Clean up
       run: |
         docker stop milvus-standalone
