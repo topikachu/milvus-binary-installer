@@ -40,7 +40,8 @@ jobs:
       run: |
         timeout 300s bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:9091/healthz)" != "200" ]]; do sleep 5; done' || false
 
-    # Add your test steps here
-    - name: Run tests
+    - name: Copy milvus application from container to workspace
       run: |
-        # Add your test commands here
+        docker cp milvus-standalone:/milvus ${{ github.workspace }}/milvus/
+        ls ${{ github.workspace }}/milvus/
+        # You can repeat this command for multiple files or directories
