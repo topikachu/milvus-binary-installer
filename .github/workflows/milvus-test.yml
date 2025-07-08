@@ -22,6 +22,9 @@ jobs:
           -e ETCD_DATA_DIR=/var/lib/milvus/etcd \
           -e ETCD_CONFIG_PATH=/milvus/configs/embedEtcd.yaml \
           -e COMMON_STORAGETYPE=local \
+          -v ${{ github.workspace }}/volumes/milvus:/var/lib/milvus \
+          -v ${{ github.workspace }}/embedEtcd.yaml:/milvus/configs/embedEtcd.yaml \
+          -v ${{ github.workspace }}/user.yaml:/milvus/configs/user.yaml \
           -p 19530:19530 \
           -p 9091:9091 \
           -p 2379:2379 \
