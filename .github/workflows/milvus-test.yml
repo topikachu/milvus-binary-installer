@@ -52,11 +52,11 @@ jobs:
         tar -czvf milvus-package.tgz milvus/
         ls -lh milvus-package.tgz
 
-    - name: Upload Milvus package
-      uses: actions/upload-artifact@v2
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
       with:
-        name: milvus-package
-        path: ${{ github.workspace }}/milvus-package.tgz
+        name: milvus-package-${{ matrix.runs-on }}
+        path: file-${{ matrix.runs-on }}.txt
 
       # Optional: Clean up
     - name: Clean up
